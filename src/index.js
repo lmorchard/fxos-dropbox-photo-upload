@@ -1,32 +1,69 @@
 var _ = require('lodash');
 var Promise = require("bluebird");
 var async = require('async');
+var Utils = require('./js/Utils');
+var domready = require('domready');
 
-// HACK: This is a giant hack because I can't seem use an app:// URL as the receiver
-var OAUTH_RECEIVER_URL = 'https://dl.dropboxusercontent.com/u/2798055/oauth_receiver.html';
-var APP_KEY = 'schf2prlpcqiol5';
+var App = require('ampersand-app');
+var AppModel = require('./js/models/App');
+var AppView = require('./js/views/App');
+var AppRouter = require('./js/router');
+var StartupView = require('./js/views/Startup');
 
-var client = promisifyMethods(new Dropbox.Client({ key: APP_KEY }), [
-  'authenticate', 'getUserInfo', 'readdir', 'writeFile', 'readFile'
-]);
+App.extend({
 
-client.authDriver(new Dropbox.AuthDriver.Popup({
-  rememberUser: true, receiverUrl: OAUTH_RECEIVER_URL
-}));
+  initialize: function () {
 
-var userInfo;
+    this.model = new AppModel();
+    this.view = new AppView({ model: this.model });
+    this.router = new AppRouter();
 
-client.authenticate().then(function () {
-  return client.getUserInfo();
+    this.view.render();
+    document.body.appendChild(this.view.el);
+    App.trigger('page', new StartupView());
+
+    this.router.history.start({ pushState: false, hashChange: true });
+
+    this.model.on('change:dropboxUserInfo', () => {
+      if (!this.model.dropboxUserInfo) {
+        this.router.navigate('connect');
+      } else {
+        this.router.navigate('');
+      }
+    });
+
+    this.model.authenticate({ interactive: false }).then((client) => {
+      if (!client.isAuthenticated()) {
+        this.router.navigate('connect');
+      }
+    });
+
+  },
+
+  log: function (msg) {
+    this.model.consoleOutput.push(msg);
+    if (this.model.consoleOutput.length > 1000) {
+      this.model.consoleOutput.shift();
+    }
+  }
+
+});
+
+// HACK: Give access to the app from console
+window.App = App;
+
+domready(App.initialize.bind(App));
+
+/*
 }).then(function (result) {
   userInfo = result;
   return Promise.props({
     remote: client.readdir('/Camera Uploads'),
-    local: enumerateDeviceStorage('pictures')
+    local: Utils.enumerateDeviceStorage('pictures')
   });
 }).then(function (results) {
 
-  var toUpload = results.local.slice(0, 10);
+  var toUpload = results.local.slice(0, 3);
   //var toUpload = results.local;
 
   var xhrListener = function(dbXhr) {
@@ -43,7 +80,7 @@ client.authenticate().then(function () {
 
   return Promise.map(toUpload, function (file) {
 
-    return getFromDeviceStorage('pictures', file.name).then(function (result) {
+    return Utils.getFromDeviceStorage('pictures', file.name).then(function (result) {
       file.contents = result;
 
       if (file.name.indexOf('/DCIM/') !== -1) {
@@ -65,54 +102,4 @@ client.authenticate().then(function () {
 }).catch(function (err) {
   console.log('ERROR CATCH', err);
 });
-
-function getFromDeviceStorage (type, name) {
-  return new Promise(function (resolve, reject) {
-    var storage = navigator.getDeviceStorage(type);
-    var request = storage.get(name);
-    request.onerror = function () { return reject(this.error) };
-    request.onsuccess = function () {
-      var file = this.result;
-      var reader = new FileReader();
-      reader.onerror = function () { return reject(this.error) };
-      reader.onload = function () {
-        return resolve(reader.result);
-      };
-      reader.readAsArrayBuffer(file);
-    };
-  });
-}
-
-function enumerateDeviceStorage (type) {
-  return new Promise(function (resolve, reject) {
-    var storage = navigator.getDeviceStorage(type);
-    var entries = [];
-    var cursor = storage.enumerate();
-    cursor.onerror = function () {
-      return reject(this.error);
-    };
-    cursor.onsuccess = function () {
-      if (this.done) {
-        return resolve(entries);
-      }
-      entries.push(this.result);
-      this.continue();
-    };
-  });
-}
-
-function promisifyMethods(context, methodNames) {
-  methodNames.forEach(function(name) {
-    var originalMethod = context[name];
-    context[name] = function() {
-      var mutableArguments = Array.prototype.slice.call(arguments, 0);
-      return new Promise(function(resolve, reject) {
-        mutableArguments.push(function(err, result) {
-          return err ? reject(err) : resolve(result);
-        });
-        originalMethod.apply(context, mutableArguments);
-      });
-    };
-  });
-  return context;
-}
+*/
