@@ -1,0 +1,39 @@
+{
+  "name": "Dropbox Uploader",
+  "description": "Upload files to Dropbox",
+  "launch_path": "/index.html",
+  "developer": {
+    "name": "Les Orchard",
+    "url": "http://lmorchard.com"
+  },
+  "icons": {
+  },
+  "type": "privileged",
+  "permissions": {
+    "systemXHR": {
+      "description": "Comunicate with api"
+    },
+    "device-storage:sdcard": {
+      "description": "Needed to access files for upload",
+      "access": "readonly"
+    },
+    "device-storage:music": {
+      "description": "Needed to access files for upload",
+      "access": "readonly"
+    },
+    "device-storage:pictures": {
+      "description": "Needed to access files for upload",
+      "access": "readonly"
+    },
+    "device-storage:videos": {
+      "description": "Needed to access files for upload",
+      "access": "readonly"
+    },
+    "audio-channel-notification": {
+      "description": "Needed to report on upload progress"
+    },
+    "desktop-notification": {
+      "description": "Needed to display upload progress"
+    }
+  }
+}
