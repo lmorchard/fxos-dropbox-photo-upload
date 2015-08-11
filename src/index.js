@@ -20,22 +20,25 @@ App.extend({
 
     this.view.render();
     document.body.appendChild(this.view.el);
-    App.trigger('page', new StartupView());
-
-    this.router.history.start({ pushState: false, hashChange: true });
+    this.trigger('page', new StartupView());
 
     this.model.on('change:dropboxUserInfo', () => {
-      if (!this.model.dropboxUserInfo) {
-        this.router.navigate('connect');
-      } else {
-        this.router.navigate('');
-      }
+      var event = this.model.dropboxUserInfo ? 'connected' : 'disconnected';
+      this.log("Dropbox " + event);
+      this.trigger(event);
     });
 
     this.model.authenticate({ interactive: false }).then((client) => {
+
+      this.router.history.start({
+        pushState: false,
+        hashChange: true
+      });
+
       if (!client.isAuthenticated()) {
-        this.router.navigate('connect');
+        this.router.navigate('settings');
       }
+
     });
 
   },

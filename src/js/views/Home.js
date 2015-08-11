@@ -1,6 +1,5 @@
 var App = require('ampersand-app');
 var View = require('ampersand-view');
-var ConsoleComponent = require('../components/Console');
 
 module.exports = View.extend({
 
@@ -8,42 +7,27 @@ module.exports = View.extend({
 
   template: `
     <section class="view homeView">
-      <p>Home</p>
-      <p>FOO FOO FOO</p>
-      <p class="name">NAME</p>
-      <button class="signout">Sign Out</button>
-      <section class="console"></section>
+
+      <button class="scan mainAction">Scan photos</button>
+      <button class="sync mainAction">Upload photos</button>
+
     </section>
   `,
 
   bindings: {
-    'parent.model.dropboxUserInfo.name': '.name'
   },
 
   events: {
-    'click button.signout': 'signout'
+    'click button.scan': 'scanPhotos',
+    'click button.upload': 'uploadPhotos'
   },
 
-  signout: function () {
-    App.model.signOut().then((result) => {
-      console.log("SIGNED OUT");
-    })
+  scanPhotos: function () {
+
   },
 
-  subviews: {
-    console: {
-      container: '.console',
-      constructor: ConsoleComponent
-    }
-  },
+  uploadPhotos: function () {
 
-  derived: {
-    consoleOutput: {
-      deps: ['parent.model.consoleOutput'],
-      fn: function () {
-        return this.parent.model.consoleOutput;
-      }
-    }
   }
 
 });

@@ -6,12 +6,27 @@ module.exports = View.extend({
 
   template: `
     <section class="app home">
-      <h1 class="title">
-        <button class="back">&lt;</button>
-        <span>Camera Uploader</span>
-        <button class="help">?</button>
-      </h1>
+
+      <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+      <label for="nav-trigger"></label>
+
+      <nav>
+        <ul>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#settings">Settings</a></li>
+          <li><a href="#log">Log</a></li>
+          <li><a href="#about">About</a></li>
+        </ul>
+      </nav>
+
+      <header>
+        <h1 class="title">
+          <span>Camera Uploader</span>
+        </h1>
+      </header>
+
       <section class="main" data-hook="main"></section>
+
     </section>
   `,
 
@@ -19,24 +34,15 @@ module.exports = View.extend({
   },
 
   events: {
-    'click button.back': 'back',
-    'click button.help': 'help'
   },
 
   initialize: function () {
     this.listenTo(App, 'page', this.handleNewPage);
   },
 
-  back: function () {
-    App.router.navigate('');
-  },
-
-  help: function () {
-    App.router.navigate('help');
-  },
-
   handleNewPage: function (view) {
     window.scrollTo(0, 0);
+    this.el.querySelector('#nav-trigger').checked = false;
     this.switcher.set(view);
   },
 

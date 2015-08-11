@@ -42,6 +42,7 @@ gulp.task('assets', function () {
   return gulp.src([
       './src/manifest.webapp',
       './src/**/*.png',
+      './src/**/*.svg',
       './src/**/*.html',
       './src/**/*.mp3'
     ])
