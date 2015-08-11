@@ -34,7 +34,8 @@ module.exports = View.extend({
     username: {
       deps: ['parent.model.dropboxUserInfo'],
       fn: function () {
-        return this.parent.model.dropboxUserInfo.email;
+        return this.parent.model.dropboxUserInfo ?
+          this.parent.model.dropboxUserInfo.email : '';
       }
     }
   },

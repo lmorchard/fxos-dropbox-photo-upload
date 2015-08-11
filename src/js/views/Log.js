@@ -18,15 +18,11 @@ module.exports = View.extend({
 
   derived: {
     output: {
-      deps: ['App.model.consoleOutput'],
+      deps: ['parent.model.consoleOutput'],
       fn: function () {
-        return this.App.model.consoleOutput.join("\n");
+        return this.parent.model.consoleOutput.join("\n");
       }
     }
-  },
-
-  initialize: function () {
-    this.App = App;
   }
 
 });
